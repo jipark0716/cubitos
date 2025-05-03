@@ -1,14 +1,16 @@
 package model
 
+import model2 "games/shared/model"
+
 type DefaultDice struct {
-	BaseDice[*int]
+	model2.BaseDice[*int]
 }
 
 var value = 1
 
 func NewDefaultDice() *DefaultDice {
 	return &DefaultDice{
-		BaseDice[*int]{
+		model2.BaseDice[*int]{
 			Values: []*int{nil, &value, nil, nil, nil, nil},
 		},
 	}

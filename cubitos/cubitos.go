@@ -1,7 +1,11 @@
 package cubitos
 
 import (
-	"games/game/entity"
+	"fmt"
+	"games/cubitos/entity"
+	baseEntity "games/shared/entity"
+	baseEvent "games/shared/event"
+	"games/shared/util"
 	"github.com/hajimehoshi/ebiten/v2"
 	"image/color"
 	"log"
@@ -14,18 +18,30 @@ const (
 )
 
 type Game struct {
-	frameCount int
-	diceValue  int
-	rolling    bool
-	entities   []entity.Entity
+	RequestIdGenerator <-chan uint64
+	frameCount         int
+	diceValue          int
+	rolling            bool
+	entities           []baseEntity.Entity
+	dice               *entity.DefaultDiceEntity
+	DiceEventChannel   chan *baseEvent.DiceEvent[*int]
 }
 
 func NewGame() *Game {
-	return &Game{
-		entities: []entity.Entity{
-			entity.NewDefaultDiceEntity(),
-		},
+	diceEventChannel := make(chan *baseEvent.DiceEvent[*int], 64)
+	game := &Game{
+		DiceEventChannel:   diceEventChannel,
+		RequestIdGenerator: util.Increment[uint64](),
+		dice:               entity.NewDefaultDiceEntity(diceEventChannel),
 	}
+
+	game.EntityReCache()
+
+	return game
+}
+
+func (g *Game) EntityReCache() {
+	g.entities = []baseEntity.Entity{g.dice}
 }
 
 func (g *Game) Run() {
@@ -37,24 +53,24 @@ func (g *Game) Run() {
 }
 
 func (g *Game) Update() error {
+	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) && g.dice.RollAble() {
+		g.dice.Roll(<-g.RequestIdGenerator)
+	}
+
+eventHandle:
+	for {
+		select {
+		case evt := <-g.DiceEventChannel:
+			fmt.Printf("Dice Event: %v\n", evt)
+		default:
+			break eventHandle
+		}
+	}
+
 	for _, et := range g.entities {
 		et.Update()
 	}
 	return nil
-	//if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) && !g.rolling {
-	//	g.rolling = true
-	//	g.frameCount = 0
-	//}
-	//
-	//if g.rolling {
-	//	g.diceValue = rand.Intn(6) + 1
-	//	g.frameCount++
-	//	if g.frameCount > rollDuration {
-	//		g.rolling = false
-	//	}
-	//}
-	//
-	//return nil
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
@@ -62,14 +78,6 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	for _, et := range g.entities {
 		et.Draw(screen)
 	}
-	//text.Draw(screen, fmt.Sprintf("%d", g.diceValue),
-	//	basicfont.Face7x13, screenWidth/2, screenHeight/2, color.White)
-	//
-	//if g.rolling {
-	//	text.Draw(screen, "Rolling...", basicfont.Face7x13, 10, screenHeight-20, color.RGBA{R: 200, G: 200, B: 255, A: 255})
-	//} else {
-	//	text.Draw(screen, "Click to Roll", basicfont.Face7x13, 10, screenHeight-20, color.RGBA{R: 200, G: 255, B: 200, A: 255})
-	//}
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
