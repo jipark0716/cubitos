@@ -14,9 +14,9 @@ type DiceModel[T any] interface {
 type DiceStatus int
 
 const (
-	DiceStatusReady  DiceStatus = 0
-	DiceStatusRoll   DiceStatus = 1
-	DiceStatusResult DiceStatus = 2
+	DiceStatusReady DiceStatus = iota
+	DiceStatusRoll
+	DiceStatusResult
 )
 
 type BaseDice[T any] struct {

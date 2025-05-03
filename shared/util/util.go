@@ -1,6 +1,8 @@
 package util
 
-import "golang.org/x/exp/constraints"
+import (
+	"golang.org/x/exp/constraints"
+)
 
 func Increment[T constraints.Integer]() <-chan T {
 	var i T = 0
@@ -12,4 +14,15 @@ func Increment[T constraints.Integer]() <-chan T {
 		}
 	}()
 	return result
+}
+
+func EventHandle[T any](ch <-chan T, action func(T)) {
+	for {
+		select {
+		case evt := <-ch:
+			action(evt)
+		default:
+			return
+		}
+	}
 }

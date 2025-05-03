@@ -15,13 +15,13 @@ func init() {
 	diceResult = entity2.LoadImages("cubitos/assets/default_dice_result", 6)
 }
 
-type DefaultDiceEntity struct {
-	*entity2.DiceEntity[*int]
+type DiceEntity struct {
+	*entity2.DiceEntity[model.DiceResult]
 }
 
-func NewDefaultDiceEntity(diceEventChannel chan *event.DiceEvent[*int]) *DefaultDiceEntity {
-	return &DefaultDiceEntity{
-		DiceEntity: &entity2.DiceEntity[*int]{
+func NewDefaultDiceEntity(diceEventChannel chan *event.DiceEvent[model.DiceResult]) *DiceEntity {
+	return &DiceEntity{
+		DiceEntity: &entity2.DiceEntity[model.DiceResult]{
 			DiceModel:        model.NewDefaultDice(),
 			DiceAnimate:      diceAnimate,
 			DiceResult:       diceResult,

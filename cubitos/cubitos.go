@@ -1,10 +1,8 @@
 package cubitos
 
 import (
-	"fmt"
 	"games/cubitos/entity"
 	baseEntity "games/shared/entity"
-	baseEvent "games/shared/event"
 	"games/shared/util"
 	"github.com/hajimehoshi/ebiten/v2"
 	"image/color"
@@ -23,16 +21,14 @@ type Game struct {
 	diceValue          int
 	rolling            bool
 	entities           []baseEntity.Entity
-	dice               *entity.DefaultDiceEntity
-	DiceEventChannel   chan *baseEvent.DiceEvent[*int]
+	PersonalBoard      *entity.PersonalBoardEntity
 }
 
 func NewGame() *Game {
-	diceEventChannel := make(chan *baseEvent.DiceEvent[*int], 64)
+	requestIdGenerator := util.Increment[uint64]()
 	game := &Game{
-		DiceEventChannel:   diceEventChannel,
-		RequestIdGenerator: util.Increment[uint64](),
-		dice:               entity.NewDefaultDiceEntity(diceEventChannel),
+		RequestIdGenerator: requestIdGenerator,
+		PersonalBoard:      entity.NewPersonalBoardEntity(requestIdGenerator),
 	}
 
 	game.EntityReCache()
@@ -41,7 +37,7 @@ func NewGame() *Game {
 }
 
 func (g *Game) EntityReCache() {
-	g.entities = []baseEntity.Entity{g.dice}
+	g.entities = []baseEntity.Entity{g.PersonalBoard}
 }
 
 func (g *Game) Run() {
@@ -53,20 +49,6 @@ func (g *Game) Run() {
 }
 
 func (g *Game) Update() error {
-	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) && g.dice.RollAble() {
-		g.dice.Roll(<-g.RequestIdGenerator)
-	}
-
-eventHandle:
-	for {
-		select {
-		case evt := <-g.DiceEventChannel:
-			fmt.Printf("Dice Event: %v\n", evt)
-		default:
-			break eventHandle
-		}
-	}
-
 	for _, et := range g.entities {
 		et.Update()
 	}

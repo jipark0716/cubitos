@@ -13,5 +13,5 @@ func (d DiceEvent[T]) RequestId() uint64 {
 type DiceEventType int
 
 const (
-	DiceEventTypeResult DiceEventType = 0
+	DiceEventTypeResult DiceEventType = iota
 )
