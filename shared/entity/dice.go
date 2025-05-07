@@ -5,6 +5,7 @@ import (
 	"games/shared/model"
 	"github.com/hajimehoshi/ebiten/v2"
 	_ "image/png"
+	"math"
 )
 
 type Dice interface {
@@ -13,22 +14,18 @@ type Dice interface {
 
 type DiceEntity[T any] struct {
 	model.DiceModel[T]
+	theta            float64
 	DiceEventChannel chan *event.DiceEvent[T]
 	frameCount       int
-	animateIndex     int
 	RollRequestId    uint64
-	DiceResult       []*ebiten.Image
-	DiceAnimate      []*ebiten.Image
+	Frame            *Drawable
+	Background       *Drawable
+	Images           []*Drawable
 }
 
 func (d *DiceEntity[T]) RollFrame() int {
 	return 30
 }
-
-const (
-	DiceFrames   = 12
-	AnimateSpeed = 2
-)
 
 func (d *DiceEntity[T]) Roll(requestId uint64) {
 	d.SetStatus(model.DiceStatusRoll)
@@ -38,6 +35,7 @@ func (d *DiceEntity[T]) Roll(requestId uint64) {
 
 func (d *DiceEntity[T]) RollComplete() {
 	d.DiceModel.Roll()
+	d.DiceModel.SetStatus(model.DiceStatusResult)
 	d.DiceEventChannel <- &event.DiceEvent[T]{
 		Id:            d.RollRequestId,
 		DiceEventType: event.DiceEventTypeResult,
@@ -48,27 +46,34 @@ func (d *DiceEntity[T]) RollComplete() {
 func (d *DiceEntity[T]) Update() {
 	if d.GetStatus() == model.DiceStatusRoll {
 		d.frameCount++
-		if d.frameCount%AnimateSpeed == 0 {
-			d.animateIndex = (d.animateIndex + 1) % DiceFrames
-		}
 
 		if d.frameCount > d.RollFrame() {
 			d.RollComplete()
+			d.theta = 0
+		} else {
+			d.theta += 1
+			if d.frameCount%3 == 0 {
+				d.DiceModel.Roll()
+			}
 		}
 	}
 }
 
 func (d *DiceEntity[T]) Draw(screen *ebiten.Image) {
-	op := &ebiten.DrawImageOptions{}
+	frame := d.Frame.CopyWithClear()
+	frame.Draw(d.Background.Copy())
 
-	var img *ebiten.Image
-	if d.GetStatus() == model.DiceStatusResult {
-		img = d.DiceResult[d.ResultScreen()]
+	if d.GetStatus() == model.DiceStatusReady {
+		frame.Draw(d.Images[0])
 	} else {
-		img = d.DiceAnimate[d.animateIndex]
+		frame.Draw(d.Images[d.DiceModel.ResultScreen()]) // todo 현재꺼 보여주기
 	}
 
-	op.Filter = ebiten.FilterNearest
+	frame.SetCenterAnchor()
+	if d.GetStatus() == model.DiceStatusRoll {
+		frame.Option.GeoM.Rotate(math.Sin(d.theta) * 0.1) // 좌우로 흔들림
+	}
+	frame.Option.GeoM.Translate(60, 60)
 
-	screen.DrawImage(img, op)
+	screen.DrawImage(frame.Image, &frame.Option)
 }

@@ -26,7 +26,6 @@ type BaseDice[T any] struct {
 }
 
 func (b *BaseDice[T]) Roll() {
-	b.SetStatus(DiceStatusResult)
 	b.Value = rand.Intn(6)
 }
 

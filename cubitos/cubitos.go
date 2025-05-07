@@ -10,8 +10,8 @@ import (
 )
 
 const (
-	screenWidth  = 800
-	screenHeight = 600
+	screenWidth  = 1200
+	screenHeight = 800
 	screenRate   = 1
 )
 
@@ -41,7 +41,7 @@ func (g *Game) EntityReCache() {
 }
 
 func (g *Game) Run() {
-	ebiten.SetWindowSize(screenWidth*screenRate, screenHeight*screenRate)
+	ebiten.SetWindowSize(screenWidth, screenHeight)
 	ebiten.SetWindowTitle("2D Dice Animation Example")
 	if err := ebiten.RunGame(g); err != nil {
 		log.Fatal(err)
@@ -63,5 +63,5 @@ func (g *Game) Draw(screen *ebiten.Image) {
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
-	return outsideWidth / screenRate, outsideHeight / screenRate
+	return outsideWidth * screenRate, outsideHeight * screenRate
 }
