@@ -2,7 +2,9 @@ package entity
 
 import (
 	"fmt"
+	dice2 "games/cubitos/entity/dice"
 	"games/cubitos/model"
+	baseEntity "games/shared/entity"
 	baseEvent "games/shared/event"
 	"games/shared/util"
 	"github.com/hajimehoshi/ebiten/v2"
@@ -11,7 +13,8 @@ import (
 type PersonalBoardEntity struct {
 	DiceEventChannel   chan *baseEvent.DiceEvent[model.DiceResult]
 	RequestIdGenerator <-chan uint64
-	dice               *DiceEntity
+	Frame              *baseEntity.Drawable
+	dice               *dice2.DiceEntity
 }
 
 func (p *PersonalBoardEntity) Update() {
@@ -26,14 +29,18 @@ func (p *PersonalBoardEntity) Update() {
 }
 
 func (p *PersonalBoardEntity) Draw(screen *ebiten.Image) {
-	p.dice.Draw(screen)
+	frame := p.Frame.CopyWithClear()
+	p.dice.Draw(frame.Image)
+
+	screen.DrawImage(p.Frame.Image, &p.Frame.Option)
 }
 
 func NewPersonalBoardEntity(requestIdGenerator <-chan uint64) *PersonalBoardEntity {
 	diceEventChannel := make(chan *baseEvent.DiceEvent[model.DiceResult], 64)
 	return &PersonalBoardEntity{
 		RequestIdGenerator: requestIdGenerator,
-		dice:               NewDefaultDiceEntity(diceEventChannel),
+		dice:               dice2.NewDefaultDiceEntity(diceEventChannel),
 		DiceEventChannel:   diceEventChannel,
+		Frame:              baseEntity.NewDrawable(ebiten.NewImage(1000, 1000)),
 	}
 }

@@ -1,4 +1,4 @@
-package entity
+package dice
 
 import (
 	"games/cubitos/model"
@@ -18,21 +18,21 @@ var diceBackground *baseEntity.Drawable
 var diceImages []*baseEntity.Drawable
 
 const (
-	diceWidth        = float32(100)
-	diceHeight       = float32(100)
-	diceRadio        = float32(10)
-	diceEntityBuffer = 10
+	defaultDiceWidth        = float32(100)
+	defaultDiceHeight       = float32(100)
+	defaultDiceRadio        = float32(10)
+	defaultDiceEntityBuffer = 10
 )
 
 func init() {
 	diceBackground = baseEntity.NewDrawable(
-		util.DrawRadiosRect(diceWidth, diceHeight, diceRadio, color.RGBA{R: 180, G: 180, B: 180, A: 255}),
+		util.DrawRadiosRect(defaultDiceWidth, defaultDiceHeight, defaultDiceRadio, color.RGBA{R: 180, G: 180, B: 180, A: 255}),
 	)
 
-	empty := baseEntity.NewDrawable(ebiten.NewImage(int(diceWidth), int(diceHeight)))
+	empty := baseEntity.NewDrawable(ebiten.NewImage(int(defaultDiceWidth), int(defaultDiceHeight)))
 
 	diceImages = []*baseEntity.Drawable{
-		baseEntity.NewDrawable(ebiten.NewImage(int(diceWidth), int(diceHeight))).
+		baseEntity.NewDrawable(ebiten.NewImage(int(defaultDiceWidth), int(defaultDiceHeight))).
 			DrawImage(
 				util.DrawText("1", basicfont.Face7x13, color.RGBA{R: 255, G: 255, B: 255, A: 255}),
 				baseEntity.NewDrawOptions().
@@ -60,8 +60,8 @@ func NewDefaultDiceEntity(diceEventChannel chan *event.DiceEvent[model.DiceResul
 			Background:       diceBackground,
 			Images:           diceImages,
 			Frame: baseEntity.NewDrawable(
-				ebiten.NewImage(int(diceWidth+diceEntityBuffer), int(diceHeight+diceEntityBuffer)),
-			),
+				ebiten.NewImage(int(defaultDiceWidth+defaultDiceEntityBuffer), int(defaultDiceHeight+defaultDiceEntityBuffer)),
+			).Translate(10, 10),
 		},
 	}
 }

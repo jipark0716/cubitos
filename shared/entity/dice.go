@@ -73,7 +73,7 @@ func (d *DiceEntity[T]) Draw(screen *ebiten.Image) {
 	if d.GetStatus() == model.DiceStatusRoll {
 		frame.Option.GeoM.Rotate(math.Sin(d.theta) * 0.1) // 좌우로 흔들림
 	}
-	frame.Option.GeoM.Translate(60, 60)
+	frame.SetStartAnchor()
 
 	screen.DrawImage(frame.Image, &frame.Option)
 }
