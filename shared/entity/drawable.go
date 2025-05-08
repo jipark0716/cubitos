@@ -49,8 +49,7 @@ func (d *Drawable) Draw(draw *Drawable) {
 func (d *Drawable) DrawImage(img *ebiten.Image, opt *DrawOptions) *Drawable {
 	dest := NewDrawable(img)
 	dest.SetCenterAnchor()
-	dest.Option.GeoM.Scale(opt.scaleX, opt.scaleY)
-	dest.Option.GeoM.Translate(opt.posX, opt.posY)
+	opt.Translate(&dest.Option)
 	d.Image.DrawImage(dest.Image, &dest.Option)
 
 	return d
@@ -63,8 +62,7 @@ func (d *Drawable) SizeDebug() {
 }
 
 func (d *Drawable) Translate(opt *DrawOptions) *Drawable {
-	d.Option.GeoM.Scale(opt.scaleX, opt.scaleY)
-	d.Option.GeoM.Translate(opt.posX, opt.posY)
+	opt.Translate(&d.Option)
 
 	return d
 }

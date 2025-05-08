@@ -16,9 +16,9 @@ type AssetType uint16
 const (
 	AssetEmpty AssetType = iota
 	AssetDefaultDiceFrame
-	AssetGrayDiceBackground
-	AssetBlackDiceBackground
+	AssetDiceResultMove
 	AssetDiceResultFlushableCoin1
+	AssetDiceBackground
 )
 
 var FactoryInstance *Factory
@@ -58,6 +58,9 @@ func (f *Factory) InitGetter(assetType AssetType, getter func() *baseEntity.Draw
 
 func (f *Factory) Get(assetType AssetType) *baseEntity.Drawable {
 	if f.Entity[assetType] == nil {
+		if f.Getter[assetType] == nil {
+			panic(fmt.Sprintf("%d undefind getter", assetType))
+		}
 		f.Entity[assetType] = f.Getter[assetType]()
 	}
 	return f.Entity[assetType]

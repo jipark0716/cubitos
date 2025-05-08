@@ -5,24 +5,20 @@ import (
 	"games/cubitos/model/dice"
 	baseEntity "games/shared/entity"
 	"games/shared/event"
-	"games/shared/util"
-	"image/color"
 )
-
-func init() {
-	assets.GetFactory().InitGetter(assets.AssetGrayDiceBackground, func() *baseEntity.Drawable {
-		return baseEntity.NewDrawable(
-			util.DrawRadiosRect(defaultDiceWidth, defaultDiceHeight, defaultDiceRadio, color.RGBA{R: 180, G: 180, B: 180, A: 255}),
-		)
-	})
-}
 
 func NewGrayDiceEntity(diceEventChannel chan *event.DiceEvent[dice.Result]) *Entity {
 	return &Entity{
 		DiceEntity: &baseEntity.DiceEntity[dice.Result]{
-			DiceModel:        dice.NewGrayDice(),
+			DiceModel:        dice.NewBlackDice(),
 			DiceEventChannel: diceEventChannel,
-			Background:       assets.GetFactory().Get(assets.AssetGrayDiceBackground),
+			Background: assets.GetFactory().
+				Get(assets.AssetDiceBackground).
+				Copy().
+				Translate(
+					baseEntity.NewDrawOptions().
+						SetColorMask(180, 180, 180, 255),
+				),
 			Images: []*baseEntity.Drawable{
 				assets.GetFactory().Get(assets.AssetDiceResultFlushableCoin1),
 				assets.GetFactory().Get(assets.AssetEmpty),

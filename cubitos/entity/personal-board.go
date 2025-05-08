@@ -18,6 +18,10 @@ type PersonalBoardEntity struct {
 	pendingCount       int
 }
 
+const (
+	DicePadding = 120
+)
+
 func (p *PersonalBoardEntity) Update() {
 	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) && p.pendingCount == 0 {
 		p.pendingCount += len(p.dices)
@@ -43,7 +47,7 @@ func (p *PersonalBoardEntity) Draw(screen *ebiten.Image, options *baseEntity.Dra
 			frame.Image,
 			baseEntity.
 				NewDrawOptions().
-				SetPosition(float64(i*120), 0),
+				SetPosition(float64(i*DicePadding), 0),
 		)
 	}
 
@@ -55,6 +59,14 @@ func NewPersonalBoardEntity(requestIdGenerator <-chan uint64) *PersonalBoardEnti
 	return &PersonalBoardEntity{
 		RequestIdGenerator: requestIdGenerator,
 		dices: []*diceEntity.Entity{
+			diceEntity.NewGrayDiceEntity(diceEventChannel),
+			diceEntity.NewBlackDiceEntity(diceEventChannel),
+			diceEntity.NewGrayDiceEntity(diceEventChannel),
+			diceEntity.NewBlackDiceEntity(diceEventChannel),
+			diceEntity.NewGrayDiceEntity(diceEventChannel),
+			diceEntity.NewBlackDiceEntity(diceEventChannel),
+			diceEntity.NewGrayDiceEntity(diceEventChannel),
+			diceEntity.NewBlackDiceEntity(diceEventChannel),
 			diceEntity.NewGrayDiceEntity(diceEventChannel),
 			diceEntity.NewBlackDiceEntity(diceEventChannel),
 		},

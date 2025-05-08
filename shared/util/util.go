@@ -33,7 +33,8 @@ func EventHandle[T any](ch <-chan T, action func(T)) {
 	}
 }
 
-func DrawRadiosRect(w, h, r float32, clr color.RGBA) *ebiten.Image {
+func DrawRadiosRect(w, h, r float32) *ebiten.Image {
+	clr := color.White
 	image := ebiten.NewImage(int(w), int(h))
 	vector.DrawFilledRect(image, r, 0, w-2*r, h, clr, true)
 	vector.DrawFilledRect(image, 0, r, w, h-2*r, clr, true)
@@ -45,7 +46,8 @@ func DrawRadiosRect(w, h, r float32, clr color.RGBA) *ebiten.Image {
 	return image
 }
 
-func DrawText(content string, face *basicfont.Face, clr color.RGBA) *ebiten.Image {
+func DrawText(content string, face *basicfont.Face) *ebiten.Image {
+	clr := color.White
 	bounds, _ := font.BoundString(face, content)
 
 	w := (bounds.Max.X - bounds.Min.X).Ceil()
@@ -64,10 +66,20 @@ func DrawText(content string, face *basicfont.Face, clr color.RGBA) *ebiten.Imag
 	return txtImage
 }
 
-func DrawCircleOutline(radius, thickness float32, clr color.Color) *ebiten.Image {
+func DrawCircleOutline(radius, thickness float32) *ebiten.Image {
+	clr := color.White
 	size := int((radius + thickness) * 2)
 	img := ebiten.NewImage(size, size)
 
 	vector.StrokeCircle(img, radius+thickness, radius+thickness, radius, thickness, clr, true)
 	return img
+}
+
+func PanicIf(fn func() error) func() {
+	return func() {
+		err := fn()
+		if err != nil {
+			panic(err)
+		}
+	}
 }
