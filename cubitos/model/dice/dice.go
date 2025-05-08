@@ -7,6 +7,7 @@ type Dice struct {
 	DiceType Type
 }
 
+//go:generate stringer -type=Result
 type Result uint8
 
 const (
@@ -16,6 +17,10 @@ const (
 	ResultFlushableCoin3
 	ResultCoin1
 	ResultMove1
+	ResultRed
+	ResultSuperRed
+	ResultBrown
+	ResultWhite
 )
 
 type Type uint8
@@ -58,12 +63,44 @@ func NewGrayDice() *Dice {
 
 func NewBlackDice() *Dice {
 	return &Dice{
-		DiceType: TypeGray,
+		DiceType: TypeBlack,
 		BaseDice: baseModel.BaseDice[Result]{
 			Values: []Result{
-				ResultMove1,
 				ResultFlushableCoin1,
+				ResultMove1,
 				ResultNone,
+				ResultNone,
+				ResultNone,
+				ResultNone,
+			},
+		},
+	}
+}
+
+func NewBrownDice() *Dice {
+	return &Dice{
+		DiceType: TypeBrown,
+		BaseDice: baseModel.BaseDice[Result]{
+			Values: []Result{
+				ResultBrown,
+				ResultFlushableCoin3,
+				ResultNone,
+				ResultNone,
+				ResultNone,
+				ResultNone,
+			},
+		},
+	}
+}
+
+func NewWhiteDice() *Dice {
+	return &Dice{
+		DiceType: TypeWhite,
+		BaseDice: baseModel.BaseDice[Result]{
+			Values: []Result{
+				ResultWhite,
+				ResultMove1,
+				ResultMove1,
 				ResultNone,
 				ResultNone,
 				ResultNone,

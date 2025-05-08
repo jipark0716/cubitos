@@ -1,6 +1,7 @@
 package util
 
 import (
+	baseEntity "games/shared/entity"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/text"
 	"github.com/hajimehoshi/ebiten/v2/vector"
@@ -75,11 +76,17 @@ func DrawCircleOutline(radius, thickness float32) *ebiten.Image {
 	return img
 }
 
-func PanicIf(fn func() error) func() {
-	return func() {
-		err := fn()
-		if err != nil {
-			panic(err)
-		}
-	}
+func DrawCircleText(content string, width, height float32) *baseEntity.Drawable {
+	return baseEntity.NewDrawable(ebiten.NewImage(int(width), int(height))).
+		DrawImage(
+			DrawText(content, basicfont.Face7x13),
+			baseEntity.NewDrawOptions().
+				SetScale(4, 4).
+				SetPosition(float64(width/2), float64(height/2)),
+		).
+		DrawImage(
+			DrawCircleOutline(40, 4),
+			baseEntity.NewDrawOptions().
+				SetPosition(float64(width/2), float64(height/2)),
+		)
 }

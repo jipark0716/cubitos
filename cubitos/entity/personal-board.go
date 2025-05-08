@@ -19,7 +19,7 @@ type PersonalBoardEntity struct {
 }
 
 const (
-	DicePadding = 120
+	DicePadding = 60
 )
 
 func (p *PersonalBoardEntity) Update() {
@@ -47,7 +47,8 @@ func (p *PersonalBoardEntity) Draw(screen *ebiten.Image, options *baseEntity.Dra
 			frame.Image,
 			baseEntity.
 				NewDrawOptions().
-				SetPosition(float64(i*DicePadding), 0),
+				SetPosition(float64(i*DicePadding), 0).
+				SetScale(0.5, 0.5),
 		)
 	}
 
@@ -61,14 +62,8 @@ func NewPersonalBoardEntity(requestIdGenerator <-chan uint64) *PersonalBoardEnti
 		dices: []*diceEntity.Entity{
 			diceEntity.NewGrayDiceEntity(diceEventChannel),
 			diceEntity.NewBlackDiceEntity(diceEventChannel),
-			diceEntity.NewGrayDiceEntity(diceEventChannel),
-			diceEntity.NewBlackDiceEntity(diceEventChannel),
-			diceEntity.NewGrayDiceEntity(diceEventChannel),
-			diceEntity.NewBlackDiceEntity(diceEventChannel),
-			diceEntity.NewGrayDiceEntity(diceEventChannel),
-			diceEntity.NewBlackDiceEntity(diceEventChannel),
-			diceEntity.NewGrayDiceEntity(diceEventChannel),
-			diceEntity.NewBlackDiceEntity(diceEventChannel),
+			diceEntity.NewBrownDiceEntity(diceEventChannel),
+			diceEntity.NewWhiteDiceEntity(diceEventChannel),
 		},
 		DiceEventChannel: diceEventChannel,
 		Frame:            baseEntity.NewDrawable(ebiten.NewImage(1000, 1000)),

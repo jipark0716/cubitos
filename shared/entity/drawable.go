@@ -1,7 +1,6 @@
 package entity
 
 import (
-	"fmt"
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
@@ -53,12 +52,6 @@ func (d *Drawable) DrawImage(img *ebiten.Image, opt *DrawOptions) *Drawable {
 	d.Image.DrawImage(dest.Image, &dest.Option)
 
 	return d
-}
-
-func (d *Drawable) SizeDebug() {
-	size := d.Image.Bounds().Size()
-	w, h := float64(size.X/2), float64(size.Y/2)
-	fmt.Printf("Image size: %.2fx%.2f\n", w, h)
 }
 
 func (d *Drawable) Translate(opt *DrawOptions) *Drawable {

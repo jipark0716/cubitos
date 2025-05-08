@@ -10,7 +10,7 @@ import (
 func NewGrayDiceEntity(diceEventChannel chan *event.DiceEvent[dice.Result]) *Entity {
 	return &Entity{
 		DiceEntity: &baseEntity.DiceEntity[dice.Result]{
-			DiceModel:        dice.NewBlackDice(),
+			DiceModel:        dice.NewGrayDice(),
 			DiceEventChannel: diceEventChannel,
 			Background: assets.GetFactory().
 				Get(assets.AssetDiceBackground).

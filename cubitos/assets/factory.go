@@ -1,9 +1,12 @@
 package assets
 
 import (
+	"bytes"
 	"fmt"
+	baseAssets "games/shared/assets"
 	baseEntity "games/shared/entity"
 	"github.com/hajimehoshi/ebiten/v2"
+	"image/png"
 )
 
 type Factory struct {
@@ -18,6 +21,10 @@ const (
 	AssetDefaultDiceFrame
 	AssetDiceResultMove
 	AssetDiceResultFlushableCoin1
+	AssetDiceResultFlushableCoin2
+	AssetDiceResultFlushableCoin3
+	AssetDiceResultBrown
+	AssetDiceResultWhite
 	AssetDiceBackground
 )
 
@@ -54,6 +61,29 @@ func (f *Factory) InitGetter(assetType AssetType, getter func() *baseEntity.Draw
 	} else {
 		panic(fmt.Sprintf("%d is already initialized", assetType))
 	}
+}
+
+func (f *Factory) InitGetterAsset(assetType AssetType, path string, padding float64) {
+	if f.Getter[assetType] != nil {
+		panic(fmt.Sprintf("%d is already initialized", assetType))
+	}
+
+	f.Getter[assetType] = func() *baseEntity.Drawable {
+		data, err := baseAssets.GetLoader().Load(path)
+		if err != nil {
+			panic(fmt.Sprintf("read fail: %s error: %v", path, err))
+		}
+
+		img, err := png.Decode(bytes.NewReader(data))
+		if err != nil {
+			panic(fmt.Sprintf("decode fail: %s error: %v", path, err))
+		}
+
+		return baseEntity.NewDrawable(
+			ebiten.NewImageFromImage(img),
+		).Translate(baseEntity.NewDrawOptions().SetPosition(padding, padding))
+	}
+
 }
 
 func (f *Factory) Get(assetType AssetType) *baseEntity.Drawable {

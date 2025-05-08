@@ -1,15 +1,15 @@
 package dice
 
 import (
+	"bytes"
 	"fmt"
 	"games/cubitos/assets"
 	"games/cubitos/model/dice"
+	baseAssets "games/shared/assets"
 	baseEntity "games/shared/entity"
 	"games/shared/util"
 	"github.com/hajimehoshi/ebiten/v2"
-	"golang.org/x/image/font/basicfont"
 	"image/png"
-	"os"
 )
 
 type Entity struct {
@@ -25,18 +25,16 @@ const (
 
 func init() {
 	assets.GetFactory().InitGetter(assets.AssetDiceResultFlushableCoin1, func() *baseEntity.Drawable {
-		return baseEntity.NewDrawable(ebiten.NewImage(int(defaultDiceWidth), int(defaultDiceHeight))).
-			DrawImage(
-				util.DrawText("1", basicfont.Face7x13),
-				baseEntity.NewDrawOptions().
-					SetScale(4, 4).
-					SetPosition(float64(defaultDiceWidth/2), float64(defaultDiceWidth/2)),
-			).
-			DrawImage(
-				util.DrawCircleOutline(40, 4),
-				baseEntity.NewDrawOptions().
-					SetPosition(float64(defaultDiceWidth/2), float64(defaultDiceWidth/2)),
-			)
+		return util.DrawCircleText("1", defaultDiceWidth, defaultDiceHeight)
+
+	})
+
+	assets.GetFactory().InitGetter(assets.AssetDiceResultFlushableCoin2, func() *baseEntity.Drawable {
+		return util.DrawCircleText("2", defaultDiceWidth, defaultDiceHeight)
+	})
+
+	assets.GetFactory().InitGetter(assets.AssetDiceResultFlushableCoin3, func() *baseEntity.Drawable {
+		return util.DrawCircleText("3", defaultDiceWidth, defaultDiceHeight)
 	})
 
 	assets.GetFactory().InitGetterImage(assets.AssetDiceBackground, func() *ebiten.Image {
@@ -48,21 +46,20 @@ func init() {
 	})
 
 	assets.GetFactory().InitGetter(assets.AssetDiceResultMove, func() *baseEntity.Drawable {
-		path := "cubitos/assets/move.png"
-		f, err := os.Open(path)
+		path := "assets/cubitos/dice-move.png"
+		data, err := baseAssets.GetLoader().Load(path)
 		if err != nil {
-			panic(fmt.Sprintf("open fail: %s error: %v", err, path))
+			panic(fmt.Sprintf("read fail: %s error: %v", path, err))
 		}
 
-		defer util.PanicIf(f.Close)
-
-		img, err := png.Decode(f)
+		img, err := png.Decode(bytes.NewReader(data))
 		if err != nil {
-			panic(fmt.Sprintf("decode fail: %s error: %v", err, path))
+			panic(fmt.Sprintf("decode fail: %s error: %v", path, err))
 		}
 
 		return baseEntity.NewDrawable(
 			ebiten.NewImageFromImage(img),
 		).Translate(baseEntity.NewDrawOptions().SetPosition(5, 5))
+
 	})
 }
