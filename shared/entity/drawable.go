@@ -62,8 +62,9 @@ func (d *Drawable) SizeDebug() {
 	fmt.Printf("Image size: %.2fx%.2f\n", w, h)
 }
 
-func (d *Drawable) Translate(x, y float64) *Drawable {
-	d.Option.GeoM.Translate(x, y)
+func (d *Drawable) Translate(opt *DrawOptions) *Drawable {
+	d.Option.GeoM.Scale(opt.scaleX, opt.scaleY)
+	d.Option.GeoM.Translate(opt.posX, opt.posY)
 
 	return d
 }

@@ -58,7 +58,7 @@ func (g *Game) Update() error {
 func (g *Game) Draw(screen *ebiten.Image) {
 	screen.Fill(color.RGBA{R: 0x22, G: 0x22, B: 0x22, A: 0xff})
 	for _, et := range g.entities {
-		et.Draw(screen)
+		et.Draw(screen, baseEntity.NewDrawOptions())
 	}
 }
 

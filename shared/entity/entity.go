@@ -6,5 +6,5 @@ import (
 
 type Entity interface {
 	Update()
-	Draw(screen *ebiten.Image)
+	Draw(screen *ebiten.Image, options *DrawOptions)
 }

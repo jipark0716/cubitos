@@ -59,14 +59,14 @@ func (d *DiceEntity[T]) Update() {
 	}
 }
 
-func (d *DiceEntity[T]) Draw(screen *ebiten.Image) {
+func (d *DiceEntity[T]) Draw(screen *ebiten.Image, options *DrawOptions) {
 	frame := d.Frame.CopyWithClear()
 	frame.Draw(d.Background.Copy())
 
 	if d.GetStatus() == model.DiceStatusReady {
 		frame.Draw(d.Images[0])
 	} else {
-		frame.Draw(d.Images[d.DiceModel.ResultScreen()]) // todo 현재꺼 보여주기
+		frame.Draw(d.Images[d.DiceModel.ResultScreen()])
 	}
 
 	frame.SetCenterAnchor()
@@ -75,5 +75,6 @@ func (d *DiceEntity[T]) Draw(screen *ebiten.Image) {
 	}
 	frame.SetStartAnchor()
 
+	frame.Translate(options)
 	screen.DrawImage(frame.Image, &frame.Option)
 }

@@ -38,7 +38,11 @@ func (b *BaseDice[T]) ResultScreen() int {
 }
 
 func (b *BaseDice[T]) RollAble() bool {
-	return b.GetStatus() != DiceStatusRoll
+	return b.GetStatus().RollAble()
+}
+
+func (d DiceStatus) RollAble() bool {
+	return d != DiceStatusRoll
 }
 
 func (b *BaseDice[T]) GetStatus() DiceStatus {
