@@ -18,6 +18,7 @@ type AssetType uint16
 
 const (
 	AssetEmpty AssetType = iota
+	AssetPersonalBoard
 	AssetDefaultDiceFrame
 	AssetDiceResultMove
 	AssetDiceResultFlushableCoin1

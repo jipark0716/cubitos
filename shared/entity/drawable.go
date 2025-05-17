@@ -59,3 +59,49 @@ func (d *Drawable) Translate(opt *DrawOptions) *Drawable {
 
 	return d
 }
+
+type TitleDrawOption struct {
+	perRow               int
+	paddingX, paddingY   int
+	gPaddingX, gPaddingY float64
+}
+
+func NewTitleDrawOption(perRow int) *TitleDrawOption {
+	return &TitleDrawOption{perRow: perRow}
+}
+
+func (t *TitleDrawOption) SetPadding(padding int) *TitleDrawOption {
+	t.paddingX = padding
+	t.paddingY = padding
+	return t
+}
+
+func (t *TitleDrawOption) SetGPadding(padding float64) *TitleDrawOption {
+	t.gPaddingX = padding
+	t.gPaddingY = padding
+	return t
+}
+
+func (t *TitleDrawOption) SetGPaddingX(padding float64) *TitleDrawOption {
+	t.gPaddingX = padding
+	return t
+}
+
+func (t *TitleDrawOption) SetGPaddingY(padding float64) *TitleDrawOption {
+	t.gPaddingY = padding
+	return t
+}
+
+func DrawTile[T Entity](d *Drawable, targets []T, opt *TitleDrawOption) {
+	for i, target := range targets {
+		x := i % opt.perRow
+		y := i / opt.perRow
+
+		target.Draw(
+			d.Image,
+			NewDrawOptions().
+				SetPosition(opt.gPaddingX+float64(x*opt.paddingX), opt.gPaddingY+float64(y*opt.paddingY)).
+				SetScale(0.5, 0.5),
+		)
+	}
+}

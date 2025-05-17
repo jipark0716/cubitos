@@ -8,7 +8,7 @@ type Dice struct {
 }
 
 //go:generate stringer -type=Result
-type Result uint8
+type Result int
 
 const (
 	ResultNone Result = iota
@@ -23,7 +23,8 @@ const (
 	ResultWhite
 )
 
-type Type uint8
+//go:generate stringer -type=Type
+type Type int
 
 const (
 	TypeGray Type = iota

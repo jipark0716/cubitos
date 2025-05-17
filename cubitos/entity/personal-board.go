@@ -2,7 +2,9 @@ package entity
 
 import (
 	"fmt"
+	"games/cubitos/assets"
 	diceEntity "games/cubitos/entity/dice"
+	"games/cubitos/event"
 	diceModel "games/cubitos/model/dice"
 	baseEntity "games/shared/entity"
 	baseEvent "games/shared/event"
@@ -15,20 +17,40 @@ type PersonalBoardEntity struct {
 	RequestIdGenerator <-chan uint64
 	Frame              *baseEntity.Drawable
 	dices              []*diceEntity.Entity
+	ReadyDices         []*diceEntity.Entity
+	RollDices          []*diceEntity.Entity
+	ActiveDices        []*diceEntity.Entity
+	TrashDices         []*diceEntity.Entity
 	pendingCount       int
+	BoardAsset         *baseEntity.Drawable
 }
 
-const (
-	DicePadding = 60
-)
+func init() {
+	assets.GetFactory().InitGetterAsset(assets.AssetPersonalBoard, "assets/cubitos/personal-board.png", 0)
+}
 
-func (p *PersonalBoardEntity) Update() {
-	if ebiten.IsMouseButtonPressed(ebiten.MouseButtonLeft) && p.pendingCount == 0 {
-		p.pendingCount += len(p.dices)
+func (p *PersonalBoardEntity) ReCache() {
+	p.dices = util.Merge(p.ReadyDices, p.RollDices, p.ActiveDices, p.TrashDices)
+}
+
+func (p *PersonalBoardEntity) StartRoll() {
+	if p.pendingCount == 0 {
 		for _, dice := range p.dices {
-			dice.Roll(<-p.RequestIdGenerator)
+			dice.StartRoll()
 		}
 	}
+}
+
+func (p *PersonalBoardEntity) EndRoll() {
+	if p.pendingCount == 0 {
+		p.pendingCount += len(p.dices)
+		for _, dice := range p.dices {
+			dice.EndRoll(<-p.RequestIdGenerator)
+		}
+	}
+}
+
+func (p *PersonalBoardEntity) Update() {
 	util.EventHandle(p.DiceEventChannel, func(event *baseEvent.DiceEvent[diceModel.Result]) {
 		p.pendingCount -= 1
 		fmt.Printf("Dice Event: %v\n", event)
@@ -42,30 +64,35 @@ func (p *PersonalBoardEntity) Update() {
 func (p *PersonalBoardEntity) Draw(screen *ebiten.Image, options *baseEntity.DrawOptions) {
 	frame := p.Frame.CopyWithClear()
 	frame.Translate(options)
-	for i, dice := range p.dices {
-		dice.Draw(
-			frame.Image,
-			baseEntity.
-				NewDrawOptions().
-				SetPosition(float64(i*DicePadding), 0).
-				SetScale(0.5, 0.5),
-		)
-	}
+	frame.Draw(p.BoardAsset)
+	baseEntity.DrawTile(
+		frame,
+		p.ReadyDices,
+		baseEntity.NewTitleDrawOption(3).
+			SetGPaddingX(10).
+			SetGPaddingY(5).
+			SetPadding(60))
 
 	screen.DrawImage(p.Frame.Image, &p.Frame.Option)
 }
 
-func NewPersonalBoardEntity(requestIdGenerator <-chan uint64) *PersonalBoardEntity {
+func NewPersonalBoardEntity(requestIdGenerator <-chan uint64, eventManager *event.KeyEventManager) *PersonalBoardEntity {
 	diceEventChannel := make(chan *baseEvent.DiceEvent[diceModel.Result], 64)
-	return &PersonalBoardEntity{
+	p := &PersonalBoardEntity{
 		RequestIdGenerator: requestIdGenerator,
-		dices: []*diceEntity.Entity{
+		ReadyDices: []*diceEntity.Entity{
 			diceEntity.NewGrayDiceEntity(diceEventChannel),
 			diceEntity.NewBlackDiceEntity(diceEventChannel),
 			diceEntity.NewBrownDiceEntity(diceEventChannel),
 			diceEntity.NewWhiteDiceEntity(diceEventChannel),
 		},
 		DiceEventChannel: diceEventChannel,
-		Frame:            baseEntity.NewDrawable(ebiten.NewImage(1000, 1000)),
+		BoardAsset:       assets.GetFactory().Get(assets.AssetPersonalBoard),
+		Frame:            baseEntity.NewDrawable(ebiten.NewImage(1000, 400)),
 	}
+	p.ReCache()
+	eventManager.RollObserver.AddKeyDownListener(p.StartRoll)
+	eventManager.RollObserver.AddKeyUpListener(p.EndRoll)
+
+	return p
 }

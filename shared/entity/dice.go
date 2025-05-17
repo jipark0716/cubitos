@@ -14,22 +14,28 @@ type Dice interface {
 
 type DiceEntity[T any] struct {
 	model.DiceModel[T]
-	theta            float64
-	DiceEventChannel chan *event.DiceEvent[T]
-	frameCount       int
-	RollRequestId    uint64
-	Frame            *Drawable
-	Background       *Drawable
-	Images           []*Drawable
+	theta               float64
+	DiceEventChannel    chan *event.DiceEvent[T]
+	frameCount          int
+	RequestedFrameCount int
+	RollRequestId       uint64
+	Frame               *Drawable
+	Background          *Drawable
+	Images              []*Drawable
 }
 
 func (d *DiceEntity[T]) RollFrame() int {
-	return 30
+	return 10
 }
 
-func (d *DiceEntity[T]) Roll(requestId uint64) {
-	d.SetStatus(model.DiceStatusRoll)
+func (d *DiceEntity[T]) StartRoll() {
+	d.SetStatus(model.DiceStatusRolling)
 	d.frameCount = 0
+}
+
+func (d *DiceEntity[T]) EndRoll(requestId uint64) {
+	d.SetStatus(model.DiceStatusRoll)
+	d.RequestedFrameCount = d.frameCount + d.RollFrame()
 	d.RollRequestId = requestId
 }
 
@@ -44,18 +50,18 @@ func (d *DiceEntity[T]) RollComplete() {
 }
 
 func (d *DiceEntity[T]) Update() {
-	if d.GetStatus() == model.DiceStatusRoll {
-		d.frameCount++
+	if d.GetStatus() == model.DiceStatusRolling || d.GetStatus() == model.DiceStatusRoll {
 
-		if d.frameCount > d.RollFrame() {
+		if d.GetStatus() == model.DiceStatusRoll && d.RequestedFrameCount < d.frameCount {
 			d.RollComplete()
-			d.theta = 0
 		} else {
+			d.frameCount++
 			d.theta += 1
 			if d.frameCount%3 == 0 {
 				d.DiceModel.Roll()
 			}
 		}
+
 	}
 }
 
@@ -70,7 +76,7 @@ func (d *DiceEntity[T]) Draw(screen *ebiten.Image, options *DrawOptions) {
 	}
 
 	frame.SetCenterAnchor()
-	if d.GetStatus() == model.DiceStatusRoll {
+	if d.GetStatus() == model.DiceStatusRolling || d.GetStatus() == model.DiceStatusRoll {
 		frame.Option.GeoM.Rotate(math.Sin(d.theta) * 0.1) // 좌우로 흔들림
 	}
 	frame.SetStartAnchor()

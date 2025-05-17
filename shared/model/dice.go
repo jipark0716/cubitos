@@ -15,6 +15,7 @@ type DiceStatus int
 
 const (
 	DiceStatusReady DiceStatus = iota
+	DiceStatusRolling
 	DiceStatusRoll
 	DiceStatusResult
 )

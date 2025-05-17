@@ -2,6 +2,7 @@ package cubitos
 
 import (
 	"games/cubitos/entity"
+	"games/cubitos/event"
 	baseEntity "games/shared/entity"
 	"games/shared/util"
 	"github.com/hajimehoshi/ebiten/v2"
@@ -21,14 +22,17 @@ type Game struct {
 	diceValue          int
 	rolling            bool
 	entities           []baseEntity.Entity
+	KeyEventManager    *event.KeyEventManager
 	PersonalBoard      *entity.PersonalBoardEntity
 }
 
 func NewGame() *Game {
 	requestIdGenerator := util.Increment[uint64]()
+	eventManager := event.NewKeyEventManager()
 	game := &Game{
 		RequestIdGenerator: requestIdGenerator,
-		PersonalBoard:      entity.NewPersonalBoardEntity(requestIdGenerator),
+		PersonalBoard:      entity.NewPersonalBoardEntity(requestIdGenerator, eventManager),
+		KeyEventManager:    eventManager,
 	}
 
 	game.EntityReCache()
@@ -49,6 +53,7 @@ func (g *Game) Run() {
 }
 
 func (g *Game) Update() error {
+	g.KeyEventManager.Update()
 	for _, et := range g.entities {
 		et.Update()
 	}
